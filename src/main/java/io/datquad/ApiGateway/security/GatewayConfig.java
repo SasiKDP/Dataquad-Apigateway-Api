@@ -77,16 +77,16 @@ public class GatewayConfig {
                 // Protected requirements routes
                 .route("requirements_service", r -> r
                         .path("/requirements/**")
-                        .filters(f -> f.filter(new CookieToHeaderFilter())
+                        .filters(f -> f.filter(cookieToHeaderFilter)
                                 .filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
-                        .uri("http://dataquad-requirements-dev:8222"))  // Use actual container name
+                        .uri("http://dataquad-requirements-dev:8222"))
 
-                // Protected candidates routes
                 .route("candidates_service", r -> r
                         .path("/candidate/**")
-                        .filters(f -> f.filter(new CookieToHeaderFilter())
+                        .filters(f -> f.filter(cookieToHeaderFilter)
                                 .filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
-                        .uri("http://dataquad-candidates-dev:8086"))  // Use actual container name
+                        .uri("http://dataquad-candidates-dev:8086"))
+                // Use actual container name
 
                 // Health check route (optional)
                 .route("health_check", r -> r
