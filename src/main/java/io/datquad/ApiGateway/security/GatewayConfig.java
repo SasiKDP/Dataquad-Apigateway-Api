@@ -16,9 +16,12 @@ import java.util.Arrays;
 public class GatewayConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CookieToHeaderFilter cookieToHeaderFilter;
 
-    public GatewayConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+
+    public GatewayConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CookieToHeaderFilter cookieToHeaderFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.cookieToHeaderFilter = cookieToHeaderFilter;
     }
 
     @Bean
