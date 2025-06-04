@@ -25,7 +25,7 @@ public class GatewayConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
 
-        corsConfig.setAllowedOrigins(Arrays.asList("http://182.18.177.16"));
+        corsConfig.setAllowedOrigins(Arrays.asList("http://192.168.0.246"));
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfig.setAllowedHeaders(Arrays.asList(
                 "Authorization",
@@ -49,9 +49,6 @@ public class GatewayConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("user_service_login", r -> r
-                        .path("/users/login")
-                        .uri("http://localhost:8084"))
                 .route("user_service_auth", r -> r
                         .path("/users/login", "/users/register", "/users/send-otp", "/users/verify-otp", "/users/update-password")
                         .uri("http://localhost:8084"))
