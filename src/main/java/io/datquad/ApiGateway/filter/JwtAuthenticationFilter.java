@@ -144,7 +144,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
         // ✅ Correct CORS headers — use `.set()` to overwrite instead of `.add()`
-        response.getHeaders().set("Access-Control-Allow-Origin", "http://182.18.177.16");
+        response.getHeaders().set("Access-Control-Allow-Origin", "http://192.168.0.246");
         response.getHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.getHeaders().set("Access-Control-Allow-Headers", "Authorization, Content-Type");
         response.getHeaders().set("Access-Control-Allow-Credentials", "true");
