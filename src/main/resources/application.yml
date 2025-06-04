@@ -29,6 +29,7 @@ spring:
           predicates:
             - Path=/users/**
           filters:
+            - name: CookieToHeaderFilter
             - name: JwtAuthenticationFilter
 
         # Requirements Service (protected)
@@ -37,6 +38,7 @@ spring:
           predicates:
             - Path=/requirements/**
           filters:
+            - name: CookieToHeaderFilter
             - name: JwtAuthenticationFilter
 
         # Candidates Service (protected)
@@ -45,6 +47,7 @@ spring:
           predicates:
             - Path=/candidate/**
           filters:
+            - name: CookieToHeaderFilter
             - name: JwtAuthenticationFilter
 
 eureka:
