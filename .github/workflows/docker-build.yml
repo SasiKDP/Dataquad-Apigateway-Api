@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_CLI_EXPERIMENTAL: enabled
 
     steps:
       - name: Checkout Repository
@@ -22,21 +24,22 @@ jobs:
       - name: Get Latest Version
         id: version
         run: |
-          LATEST_VERSION=$(curl -s https://hub.docker.com/v2/repositories/sasikdp/dataquad-dev-Apigateway/tags/ | jq -r '.results[].name' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
-          
+          LATEST_VERSION=$(curl -s https://hub.docker.com/v2/repositories/sasikdp/dataquad-dev-apigateway/tags/ \
+            | jq -r '.results[].name' \
+            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V | tail -n 1)
+
           if [ -z "$LATEST_VERSION" ]; then
             NEW_VERSION="1.0.0"
           else
             IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_VERSION"
             PATCH=$((PATCH + 1))
 
-            # If PATCH reaches 10, increase MINOR and reset PATCH
             if [ "$PATCH" -ge 10 ]; then
               PATCH=0
               MINOR=$((MINOR + 1))
             fi
 
-            # If MINOR reaches 10, increase MAJOR and reset MINOR + PATCH
             if [ "$MINOR" -ge 10 ]; then
               MINOR=0
               MAJOR=$((MAJOR + 1))
@@ -47,23 +50,35 @@ jobs:
 
           echo "IMAGE_TAG=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Build Docker Image
+      - name: Build Docker Image (no cache, no BuildKit)
+        env:
+          DOCKER_BUILDKIT: 0
         run: |
-          docker build -t sasikdp/dataquad-dev-apigateway:${{ env.IMAGE_TAG }} .
+          set -x
+          docker build --no-cache --pull -t sasikdp/dataquad-dev-apigateway:${{ env.IMAGE_TAG }} .
           docker tag sasikdp/dataquad-dev-apigateway:${{ env.IMAGE_TAG }} sasikdp/dataquad-dev-apigateway:latest
 
-      - name: Push Docker Image
+      - name: Push Docker Image with Retry
         run: |
-          docker push sasikdp/dataquad-dev-apigateway:${{ env.IMAGE_TAG }}
-          docker push sasikdp/dataquad-dev-apigateway:latest
+          for i in {1..3}; do
+            docker push sasikdp/dataquad-dev-apigateway:${{ env.IMAGE_TAG }} && break || sleep 10
+          done
+
+          for i in {1..3}; do
+            docker push sasikdp/dataquad-dev-apigateway:latest && break || sleep 10
+          done
 
       - name: Delete Old Images (Keep Only Last 10)
         run: |
-          OLD_TAGS=$(curl -s -u ${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_PASSWORD }} "https://hub.docker.com/v2/repositories/sasikdp/dataquad-dev-apigateway/tags/" \
+          TAGS_TO_DELETE=$(curl -s -u ${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_PASSWORD }} \
+            "https://hub.docker.com/v2/repositories/sasikdp/dataquad-dev-apigateway/tags/?page_size=100" \
             | jq -r '.results[].name' \
             | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
             | sort -V | head -n -10)
 
-          for TAG in $OLD_TAGS; do
-            curl -X DELETE -u ${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_PASSWORD }} "https://hub.docker.com/v2/repositories/sasikdp/dataquad-dev-apigateway/tags/$TAG/"
+          for TAG in $TAGS_TO_DELETE; do
+            echo "Deleting tag: $TAG"
+            curl -X DELETE -u ${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_PASSWORD }} \
+              "https://hub.docker.com/v2/repositories/sasikdp/dataquad-dev-apigateway/tags/$TAG/"
+            sleep 1
           done

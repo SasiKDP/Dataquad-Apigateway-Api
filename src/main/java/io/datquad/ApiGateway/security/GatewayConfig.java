@@ -32,7 +32,7 @@ public class GatewayConfig {
         corsConfig.setAllowedOrigins(Arrays.asList(
                 "http://192.168.0.246",
                 "http://localhost:3000",  // For local development
-                "http://localhost:80"     // For local nginx
+                "http://localhost"     // For local nginx
         ));
 
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
