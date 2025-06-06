@@ -24,7 +24,7 @@ jobs:
       - name: Get Latest Version
         id: version
         run: |
-          LATEST_VERSION=$(curl -s https://hub.docker.com/v2/repositories/dataquad123/dataquad-dev-apigateway/tags/ \
+          LATEST_VERSION=$(curl -s https://hub.docker.com/v2/repositories/sasikdp/dataquad-dev-apigateway/tags/ \
             | jq -r '.results[].name' \
             | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
             | sort -V | tail -n 1)
@@ -55,23 +55,23 @@ jobs:
           DOCKER_BUILDKIT: 0
         run: |
           set -x
-          docker build --no-cache --pull -t dataquad123/dataquad-dev-apigateway:${{ env.IMAGE_TAG }} .
-          docker tag dataquad123/dataquad-dev-apigateway:${{ env.IMAGE_TAG }} dataquad123/dataquad-dev-apigateway:latest
+          docker build --no-cache --pull -t sasikdp/dataquad-dev-apigateway:${{ env.IMAGE_TAG }} .
+          docker tag sasikdp/dataquad-dev-apigateway:${{ env.IMAGE_TAG }} sasikdp/dataquad-dev-apigateway:latest
 
       - name: Push Docker Image with Retry
         run: |
           for i in {1..3}; do
-            docker push dataquad123/dataquad-dev-apigateway:${{ env.IMAGE_TAG }} && break || sleep 10
+            docker push sasikdp/dataquad-dev-apigateway:${{ env.IMAGE_TAG }} && break || sleep 10
           done
 
           for i in {1..3}; do
-            docker push dataquad123/dataquad-dev-apigateway:latest && break || sleep 10
+            docker push sasikdp/dataquad-dev-apigateway:latest && break || sleep 10
           done
 
       - name: Delete Old Images (Keep Only Last 10)
         run: |
           TAGS_TO_DELETE=$(curl -s -u ${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_PASSWORD }} \
-            "https://hub.docker.com/v2/repositories/dataquad123/dataquad-dev-apigateway/tags/?page_size=100" \
+            "https://hub.docker.com/v2/repositories/sasikdp/dataquad-dev-apigateway/tags/?page_size=100" \
             | jq -r '.results[].name' \
             | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
             | sort -V | head -n -10)
@@ -79,6 +79,6 @@ jobs:
           for TAG in $TAGS_TO_DELETE; do
             echo "Deleting tag: $TAG"
             curl -X DELETE -u ${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_PASSWORD }} \
-              "https://hub.docker.com/v2/repositories/dataquad123/dataquad-dev-apigateway/tags/$TAG/"
+              "https://hub.docker.com/v2/repositories/sasikdp/dataquad-dev-apigateway/tags/$TAG/"
             sleep 1
           done
