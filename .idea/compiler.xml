@@ -9,6 +9,11 @@
         <module name="ApiGateway" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="candidate" target="17" />
+      <module name="DataquadRequirementsApi" target="17" />
+      <module name="DataquadUserRegisterApi" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
